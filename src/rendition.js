@@ -32,6 +32,8 @@ import ContinuousViewManager from "./managers/continuous/index";
  * @param {string} [options.layout] layout to force
  * @param {string} [options.spread] force spread value
  * @param {number} [options.minSpreadWidth] overridden by spread: none (never) / both (always)
+ * @param {boolean} [settings.evenSpreads=true] whether to force an even number of columns
+ * @param {number} [settings.maxSpreadColumns=Infinity] max number of columns in the spread
  * @param {string} [options.stylesheet] url of stylesheet to be injected
  * @param {boolean} [options.resizeOnOrientationChange] false to disable orientation events
  * @param {string} [options.script] url of script to be injected
@@ -50,6 +52,8 @@ class Rendition {
 			layout: null,
 			spread: null,
 			minSpreadWidth: 800,
+			evenSpreads: true,
+			maxSpreadColumns: Infinity,
 			stylesheet: null,
 			resizeOnOrientationChange: true,
 			script: null,
@@ -570,6 +574,8 @@ class Rendition {
 			flow : flow,
 			viewport : viewport,
 			minSpreadWidth : minSpreadWidth,
+			evenSpreads: this.settings.evenSpreads,
+			maxSpreadColumns: this.settings.maxSpreadColumns,
 			direction: direction
 		};
 

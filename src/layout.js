@@ -10,6 +10,7 @@ import EventEmitter from "event-emitter";
  * @param {string} [settings.spread]
  * @param {number} [settings.minSpreadWidth=800]
  * @param {boolean} [settings.evenSpreads=false]
+ * @param {number} [settings.maxSpreadColumns=Infinity]
  */
 class Layout {
 	constructor(settings) {
@@ -18,6 +19,7 @@ class Layout {
 		this._spread = (settings.spread === "none") ? false : true;
 		this._minSpreadWidth = settings.minSpreadWidth || 800;
 		this._evenSpreads = settings.evenSpreads || false;
+		this._maxSpreadColumns = settings.maxSpreadColumns || Infinity;
 
 		if (settings.flow === "scrolled" ||
 				settings.flow === "scrolled-continuous" ||
@@ -117,10 +119,14 @@ class Layout {
 		var pageWidth;
 		var delta;
 
-		if (this._spread && width >= this._minSpreadWidth) {
-			divisor = 2;
-		} else {
-			divisor = 1;
+		if (this._spread) {
+			divisor = Math.min(
+				this._maxSpreadColumns,
+				Math.floor(width / (this._minSpreadWidth / 2))
+			);
+			if (this._evenSpreads && divisor % 2) {
+				divisor = Math.max(1, divisor - 1);
+			}
 		}
 
 		if (this.name === "reflowable" && this._flow === "paginated" && !(_gap >= 0)) {
