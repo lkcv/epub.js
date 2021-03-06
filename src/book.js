@@ -337,7 +337,16 @@ class Book {
 				return this.unpack(this.packaging);
 			});
 	}
-
+	/**
+	* Load manifest JSON object
+	* @param  {Object} json
+	* @return {Promise}
+	*/
+	openJSON(json) {
+		this.packaging = new Packaging();
+		this.packaging.load(json);
+		return this.unpack(this.packaging);
+	}
 	/**
 	 * Load a resource from the Book
 	 * @param  {string} path path to the resource to load
@@ -530,7 +539,7 @@ class Book {
 
 				if (packaging.pageList) {
 					this.pageList = new PageList(packaging.pageList); // TODO: handle page lists from Manifest
-				}
+				} else this.pageList = new pagelist(); // Fix pageList undefined when loading from manifest
 
 				resolve(this.navigation);
 			});
