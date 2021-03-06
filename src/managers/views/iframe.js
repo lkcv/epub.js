@@ -610,6 +610,7 @@ class IframeView {
 		}
 
 		let m = new Highlight(range, className, data, attributes);
+		try {
 		let h = this.pane.addMark(m);
 
 		this.highlights[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
@@ -623,6 +624,7 @@ class IframeView {
 			h.element.addEventListener("touchstart", cb);
 		}
 		return h;
+		} catch (e) {}
 	}
 
 	underline(cfiRange, data={}, cb, className = "epubjs-ul", styles = {}) {
