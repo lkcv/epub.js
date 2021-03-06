@@ -113,7 +113,7 @@ class Archive {
 		}
 		else
 		if(type == "html" || type == "htm") {
-			r = parse(response, "text/html");
+			r = parse(response, /<\s*a[^>]*\/>/gi.test(response) ? "application/xhtml+xml" : "text/html");
 		 } else {
 			 r = response;
 		 }
