@@ -81,13 +81,80 @@ class Packaging {
 	parseMetadata(xml){
 		var metadata = {};
 
-		metadata.title = this.getElementText(xml, "title");
+		const DC_NS = "http://purl.org/dc/elements/1.1/";
+		const OPF_NS = "http://www.idpf.org/2007/opf";
+		const getElementText = node => node ? node.childNodes[0].nodeValue : null;
+		const getElementsNS = (ns, tagName) =>
+			[...xml.getElementsByTagNameNS(ns, tagName)]
+				.filter(node => node.childNodes.length);
+		const metas = [...xml.getElementsByTagName('meta')];
+		const getRefiningMetas = id => metas.filter(meta =>
+			meta.getAttribute('refines') === '#' + id);
+		const getPropertyMetas = (el, prop) => {
+			const id = el.getAttribute('id');
+			const metas = getRefiningMetas(id);
+			if (metas) {
+				const refined = metas
+					.filter(meta => meta.getAttribute('property') === prop);
+				if (refined) return refined;
+			}
+		};
+		const getProperty = (el, ns, prop, one = true) => {
+			const attribute = el.getAttributeNS(ns, prop);
+			const metas = getPropertyMetas(el, prop);
+			return metas && metas.length
+				? (one ? getElementText(metas[0]) : metas.map(getElementText))
+				: attribute;
+		};
+
+		const titles = getElementsNS(DC_NS, "title")
+			.map(x => ({
+				type: getProperty(x, OPF_NS, 'title-type'),
+				seq: getProperty(x, OPF_NS, 'display-seq'),
+				label: getElementText(x)
+			}));
+		metadata.titles = titles;
+		const mainTitle = titles.find(x => x.type === 'main');
+		if (mainTitle) metadata.title = mainTitle.label;
+		else metadata.title = this.getElementText(xml, "title");
+
 		metadata.creator = this.getElementText(xml, "creator");
 		metadata.description = this.getElementText(xml, "description");
+
+		metadata.subjects = getElementsNS(DC_NS, "subject")
+			.map(x => ({
+				authority: getProperty(x, OPF_NS, 'authority'),
+				term: getProperty(x, OPF_NS, 'term'),
+				label: getElementText(x)
+			}));
+
+		metadata.sources = getElementsNS(DC_NS, "source").map(getElementText);
+
+		metadata.collections = metas
+			.filter(meta => meta.getAttribute('property') === 'belongs-to-collection')
+			.map(meta => ({
+				type: getProperty(meta, OPF_NS, 'collection-type'),
+				position: getProperty(meta, OPF_NS, 'group-position'),
+				label: getElementText(meta)
+			}));
+
+		metadata.contributors = getElementsNS(DC_NS, "contributor")
+			.map(x => ({
+			role: getProperty(x, OPF_NS, 'role', false),
+			scheme: getProperty(x, OPF_NS, 'scheme', false),
+			label: getElementText(x)
+			}));
 
 		metadata.pubdate = this.getElementText(xml, "date");
 
 		metadata.publisher = this.getElementText(xml, "publisher");
+
+		metadata.identifiers = getElementsNS(DC_NS, "identifier")
+			.map(x => ({
+				type: getProperty(x, OPF_NS, 'identifier-type'),
+				scheme: getProperty(x, OPF_NS, 'scheme'),
+				identifier: getElementText(x)
+			}));
 
 		metadata.identifier = this.getElementText(xml, "identifier");
 		metadata.language = this.getElementText(xml, "language");
