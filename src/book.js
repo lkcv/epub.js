@@ -539,7 +539,7 @@ class Book {
 
 				if (packaging.pageList) {
 					this.pageList = new PageList(packaging.pageList); // TODO: handle page lists from Manifest
-				} else this.pageList = new pagelist(); // Fix pageList undefined when loading from manifest
+				} else this.pageList = new PageList(); // Fix pageList undefined when loading from manifest
 
 				resolve(this.navigation);
 			});
