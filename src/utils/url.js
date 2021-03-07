@@ -85,7 +85,7 @@ class Url {
 		}
 
 		fullpath = path.resolve(this.directory, what);
-		return this.origin + fullpath;
+		return (this.origin === 'null' ? 'file://' : this.origin) + fullpath;
 	}
 
 	/**
