@@ -11,6 +11,7 @@ import EventEmitter from "event-emitter";
  * @param {number} [settings.minSpreadWidth=800]
  * @param {boolean} [settings.evenSpreads=false]
  * @param {number} [settings.maxSpreadColumns=Infinity]
+ * @param {number} [settings.gap] width of the gap between columns
  */
 class Layout {
 	constructor(settings) {
@@ -20,6 +21,7 @@ class Layout {
 		this._minSpreadWidth = settings.minSpreadWidth || 800;
 		this._evenSpreads = settings.evenSpreads || false;
 		this._maxSpreadColumns = settings.maxSpreadColumns || Infinity;
+		this._gap = settings.gap || 0;
 
 		if (settings.flow === "scrolled" ||
 				settings.flow === "scrolled-continuous" ||
@@ -100,19 +102,16 @@ class Layout {
 	 * Calculate the dimensions of the pagination
 	 * @param  {number} _width  width of the rendering
 	 * @param  {number} _height height of the rendering
-	 * @param  {number} _gap    width of the gap between columns
 	 */
-	calculate(_width, _height, _gap){
+	calculate(_width, _height){
 
 		var divisor = 1;
-		var gap = _gap || 0;
+		var gap = this._gap % 2 ? this._gap - 1 : this._gap;
 
 		//-- Check the width and create even width columns
 		// var fullWidth = Math.floor(_width);
 		var width = _width;
 		var height = _height;
-
-		var section = Math.floor(width / 12);
 
 		var columnWidth;
 		var spreadWidth;
@@ -127,10 +126,6 @@ class Layout {
 			if (this._evenSpreads && divisor % 2) {
 				divisor = Math.max(1, divisor - 1);
 			}
-		}
-
-		if (this.name === "reflowable" && this._flow === "paginated" && !(_gap >= 0)) {
-			gap = ((section % 2 === 0) ? section : section - 1);
 		}
 
 		if (this.name === "pre-paginated" ) {
